@@ -30,6 +30,17 @@ To train Gemma Instruct model, train data had been adjusted to follow Gemma prom
 
 ## Fine-Tuned Gemma Model and Inference
 * https://huggingface.co/DH21ML/gemma-2-2b-it-SQL-FineTuned
+
+Load Model from Huggingface
+```
+# Load model directly
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+tokenizer = AutoTokenizer.from_pretrained("DH21ML/gemma-2-2b-it-SQL-FineTuned")
+model = AutoModelForCausalLM.from_pretrained("DH21ML/gemma-2-2b-it-SQL-FineTuned", device_map="cuda:0")
+```
+
+Model Inference
 ```
 question = """Identify the number of artworks created by female artists from the 16th century and their average cultural impact score."""
 

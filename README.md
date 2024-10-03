@@ -28,8 +28,35 @@ To train Gemma Instruct model, train data had been adjusted to follow Gemma prom
 <start_of_turn> model SELECT SUM(hours) FROM labor_hours WHERE year = 2019; <end_of_turn>
 ```
 
-## Fine-Tuned Gemma Model
+## Fine-Tuned Gemma Model and Inference
 * https://huggingface.co/DH21ML/gemma-2-2b-it-SQL-FineTuned
+```
+question = """Identify the number of artworks created by female artists from the 16th century and their average cultural impact score."""
+
+context = """CREATE TABLE Artists (ArtistID INT, ArtistName VARCHAR(50), Gender VARCHAR(10), BirthYear INT); INSERT INTO Artists (ArtistID, ArtistName, Gender, BirthYear) VALUES (1, 'Artemisia Gentileschi', 'Female', 1593); CREATE TABLE Artworks (ArtworkID INT, ArtistID INT, ArtworkName VARCHAR(50), CulturalImpactScore FLOAT); INSERT INTO Artworks (ArtworkID, ArtistID, ArtworkName, CulturalImpactScore) VALUES (1, 1, 'Judith Slaying Holofernes', 75.5);"""
+
+pipe_sql = pipeline("text-generation", model=model, tokenizer=tokenizer, max_new_tokens=1024)
+
+messages = [
+    {
+        "role": "user",
+        "content": "Given the following SQL question and context, generate a SQL query:\n\nSQL Question: {}\n\n SQL Context:{}".format(question, context)
+    }
+]
+
+prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+
+outputs = pipe_sql(
+    prompt,
+    do_sample=True,
+    temperature=0.2,
+    top_k=50,
+    top_p=0.95,
+    add_special_tokens=True
+)
+
+outputs[0]["generated_text"][len(prompt):]
+```
 
 ## Test with Chinook Database
 * https://www.sqlitetutorial.net/sqlite-sample-database/
